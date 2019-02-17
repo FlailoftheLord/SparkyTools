@@ -1,0 +1,16 @@
+name: SparkyTools
+prefix: sTools
+description: Some fancy item-bound tools with command powers ;>
+
+author: FlailoftheLord
+version: 1.0
+api-version: 1.13
+
+main: me.flail.sparkytools.SparkyTools
+loadbefore: [MicroCommands]
+
+commands:
+ 
+  sparkytools:
+    description: Oof
+    aliases: [st, tool, pt]
