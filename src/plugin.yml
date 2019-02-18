@@ -13,4 +13,5 @@ commands:
  
   sparkytools:
     description: Oof
+    permission: sparkytools.command
     aliases: [st, tool, pt]

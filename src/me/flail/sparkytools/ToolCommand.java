@@ -24,6 +24,7 @@ public class ToolCommand implements CommandExecutor {
 		switch (cmd) {
 
 		case "sparkytools":
+			command.setPermissionMessage(plugin.utils.chat("$prefix &cYou can't use this command!"));
 
 			if (args.length == 0) {
 
