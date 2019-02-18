@@ -16,8 +16,8 @@ import me.flail.sparkytools.Utils.ToolType;
 
 public class SparkyTool extends ItemStack {
 
-	private Player owner;
-	private ItemStack item;
+	private Player owner = null;
+	private ItemStack item = null;
 
 	private SparkyTools plugin = JavaPlugin.getPlugin(SparkyTools.class);
 
@@ -26,6 +26,29 @@ public class SparkyTool extends ItemStack {
 	public SparkyTool(Player owner, ItemStack item) {
 		this.owner = owner;
 		this.item = item;
+	}
+
+	public Player player() {
+		return owner;
+	}
+
+	public ItemStack item() {
+		return item;
+	}
+
+	public List<String> getCommands() {
+		ItemMeta meta = item.getItemMeta();
+
+		List<String> commands = new ArrayList<>();
+
+		for (String line : meta.getLore()) {
+			if (line.startsWith("/")) {
+				commands.add(line);
+			}
+
+		}
+
+		return commands;
 	}
 
 	public boolean setCommand(String message, boolean append) {
@@ -86,7 +109,7 @@ public class SparkyTool extends ItemStack {
 
 			return true;
 		} else {
-			owner.sendMessage(utils.chat("&7You can't bind to a block, or any item that can be placed."));
+			owner.sendMessage(utils.chat("$prefix &7You can't bind to a block, or any item that can be placed."));
 
 		}
 
@@ -95,11 +118,39 @@ public class SparkyTool extends ItemStack {
 
 	public boolean removeCommand(String command) {
 
-		if (command.isEmpty()) {
+		if (command.isEmpty() || !command.contains("/")) {
+			owner.sendMessage(utils.chat("$prefix &7Command to remove must start with a  &e/"));
 			return false;
 		}
 
+		String cmd = command.split(" /")[0].toLowerCase().trim();
+
+		int slot = owner.getInventory().getHeldItemSlot();
+
 		ItemMeta meta = item.getItemMeta();
+
+		List<String> newLore = meta.getLore();
+
+		for (String line : newLore) {
+			if (line.equalsIgnoreCase(cmd) || line.startsWith(cmd)) {
+				newLore.remove(line);
+				break;
+			}
+		}
+
+		if (newLore.size() > 2) {
+			meta.setLore(newLore);
+			item.setItemMeta(meta);
+			owner.getInventory().setItem(slot, item);
+
+			owner.sendMessage(
+					utils.chat("$prefix &7Removed command &8" + cmd + " &7from tool: &8" + item.getType().toString()));
+
+		} else {
+			owner.getInventory().setItem(slot, new ItemStack(item.getType(), item.getAmount()));
+
+			owner.sendMessage(utils.chat("$prefix &7Removed all commands from tool: &8" + item.getType().toString()));
+		}
 
 		return true;
 	}

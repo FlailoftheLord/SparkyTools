@@ -1,21 +1,25 @@
 package me.flail.sparkytools.Listeners;
 
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import me.flail.sparkytools.Tools.SparkyTool;
 
 public class ToolUseListener {
 
-	Player player;
-	ItemStack item;
+	private SparkyTool tool = null;
 
-	public ToolUseListener(Player player, ItemStack item) {
-		this.player = player;
-		this.item = item;
+	public ToolUseListener(SparkyTool tool) {
+		this.tool = tool;
 	}
 
 	public boolean runToolCommand() {
 
-		return true;
+		boolean yup = false;
+
+		for (String cmd : tool.getCommands()) {
+			tool.player().chat(cmd);
+			yup = true;
+		}
+
+		return yup;
 	}
 
 }

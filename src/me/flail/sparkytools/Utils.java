@@ -84,7 +84,7 @@ public class Utils {
 
 			string.toLowerCase();
 
-			if (string.startsWith("$add ") || string.startsWith("$set ")) {
+			if (string.startsWith("$add ") || string.startsWith("$set ") || string.startsWith("/")) {
 
 				String newString = string.replace("$add ", "").replace("$set ", "");
 				if (newString.startsWith("//")) {

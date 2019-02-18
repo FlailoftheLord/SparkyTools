@@ -1,5 +1,6 @@
 package me.flail.sparkytools.Tools;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -30,8 +31,8 @@ public class ToolEditor implements Listener {
 				plugin.scheduler.cancelTasks(plugin);
 
 				if (message.equals("exit") || message.equals("leave") || message.equals("quit")
-						|| message.equals("stop")) {
-					plugin.toolSessions.replace(player, Boolean.FALSE);
+						|| message.equals("stop") || message.startsWith("$command /exit")) {
+					plugin.toolSessions.put(player, Boolean.FALSE);
 
 					plugin.scheduler.cancelTasks(plugin);
 
@@ -47,19 +48,22 @@ public class ToolEditor implements Listener {
 						bindTool(player, type, message, true);
 
 						event.setCancelled(true);
+					} else if (message.startsWith("$remove ") || message.startsWith("remove ")
+							|| message.startsWith("delete ") || message.startsWith("del ")
+							|| message.startsWith("$delete ")) {
 
+						removeTool(player, message);
+						event.setCancelled(true);
 					} else if (message.startsWith("$command ")) {
-
 						bindTool(player, ToolType.COMMAND, message, false);
 
 						event.setCancelled(true);
 
 					} else if (message.startsWith("$worldedit ")) {
 
-						bindTool(player, ToolType.WORLD_EDIT, message, false);
+						bindTool(player, ToolType.WORLD_EDIT, message = message.replace("$worldedit ", ""), false);
 
 						event.setCancelled(true);
-
 					}
 
 				}
@@ -73,13 +77,30 @@ public class ToolEditor implements Listener {
 	public boolean bindTool(Player player, ToolType type, String message, boolean append) {
 
 		ItemStack item = player.getInventory().getItemInMainHand();
-
-		return new SparkyTool(player, item).setCommand(message, append);
+		if ((item != null) && (item.getType() != Material.AIR) && !item.getType().isBlock()) {
+			return new SparkyTool(player, item).setCommand(message, append);
+		} else {
+			player.sendMessage(utils.chat(
+					"$prefix &7Invalid item in hand. Hold an item, not a block &8(placeable item) &7and try again."));
+			return false;
+		}
 
 	}
 
-	public void removeTool(Player operator) {
-		ItemStack pItem = operator.getInventory().getItemInMainHand();
+	public boolean removeTool(Player operator, String message) {
+		ItemStack item = operator.getInventory().getItemInMainHand();
+
+		if ((item != null) && (item.getType() != Material.AIR) && !item.getType().isBlock()) {
+			message = message.replaceFirst("delete ", "").replace("$delete ", "").replace("$remove ", "")
+					.replaceFirst("remove ", "").replaceFirst("del ", "");
+
+			return new SparkyTool(operator, item).removeCommand(message);
+		} else {
+			operator.sendMessage(utils.chat(
+					"$prefix &7Invalid item in hand. Hold an item, not a block &8(placeable item) &7and try again."));
+			return false;
+		}
+
 	}
 
 }

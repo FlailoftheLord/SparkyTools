@@ -5,6 +5,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import me.flail.sparkytools.Utils.ToolType;
+import me.flail.sparkytools.Tools.ToolEditor;
+
 public class ToolCommand implements CommandExecutor {
 
 	protected SparkyTools plugin = SparkyTools.getPlugin(SparkyTools.class);
@@ -13,6 +16,10 @@ public class ToolCommand implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
 		String cmd = label.toLowerCase();
+
+		String usageGuide = plugin.utils.chat(
+				"&eTo get started type &7/$command <editor> &eWhich will open an editor where you can edit the tools. Or use the manual command: &7/$command <set:add:remove> <command-to-remove>")
+				.replace("$command", cmd);
 
 		switch (cmd) {
 
@@ -26,8 +33,7 @@ public class ToolCommand implements CommandExecutor {
 				if (sender instanceof Player) {
 					Player player = (Player) sender;
 					if (player.hasPermission("sparkytools.use")) {
-						sender.sendMessage(plugin.utils.chat("&dto get started type &7/$command create/bind")
-								.replace("$command", cmd));
+						sender.sendMessage(usageGuide);
 					}
 				}
 				return true;
@@ -43,37 +49,60 @@ public class ToolCommand implements CommandExecutor {
 
 					switch (arg) {
 
-					case "bind":
-						openEditorSession(operator);
-						break;
-
-					case "create":
-						openEditorSession(operator);
-						break;
-
-					case "add":
-						openEditorSession(operator);
-						break;
-
-					case "none":
-
-					case "unbind":
-
-					case "delete":
-
-					case "remove":
-
 					case "editor":
 						openEditorSession(operator);
 						break;
 
+					case "edit":
+						openEditorSession(operator);
+						break;
+
 					default:
-						return true;
+						operator.sendMessage(usageGuide);
+						break;
 
 					}
 
+				} else {
+					plugin.console.sendMessage(
+							plugin.utils.chat("&cYou can't use SparkyTool editor commands in the console!"));
 				}
 
+			} else if (args.length >= 2) {
+				if (sender instanceof Player) {
+
+					ToolEditor editor = new ToolEditor();
+
+					String commandToEdit = "";
+
+					for (int index = 1; index < args.length; index++) {
+						commandToEdit = commandToEdit.concat(args[index] + " ");
+					}
+
+					switch (args[0].toLowerCase()) {
+
+					case "add":
+
+						return editor.bindTool((Player) sender, ToolType.analyzeType(commandToEdit), commandToEdit,
+								true);
+					case "remove":
+
+						return editor.removeTool((Player) sender, commandToEdit);
+					case "delete":
+
+						return editor.removeTool((Player) sender, commandToEdit);
+					case "set":
+
+						return editor.bindTool((Player) sender, ToolType.analyzeType(commandToEdit), commandToEdit,
+								false);
+					}
+
+				} else {
+					plugin.console.sendMessage(
+							plugin.utils.chat("&cYou can't use SparkyTool editor commands in the console!"));
+				}
+
+				return true;
 			}
 
 			return true;
@@ -89,7 +118,7 @@ public class ToolCommand implements CommandExecutor {
 
 		operator.sendMessage(plugin.utils.chat("$prefix &7creating editor session..."));
 
-		plugin.toolSessions.replace(operator, Boolean.TRUE);
+		plugin.toolSessions.put(operator, Boolean.TRUE);
 		int delay = 60;
 
 		int msg1 = plugin.scheduler.scheduleSyncDelayedTask(plugin, () -> {
