@@ -41,9 +41,12 @@ public class SparkyTool extends ItemStack {
 
 		List<String> commands = new ArrayList<>();
 
-		for (String line : meta.getLore()) {
-			if (line.startsWith("/")) {
-				commands.add(line);
+		if (meta.hasLore()) {
+			for (String line : meta.getLore()) {
+				if (line.startsWith("/")) {
+					commands.add(line);
+				}
+
 			}
 
 		}
