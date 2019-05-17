@@ -26,7 +26,6 @@ public class InteractEventWatcher implements Listener {
 				if ((event.getItem() != null) && (event.getItem().getType() != Material.AIR)) {
 
 					new ToolUseListener(new SparkyTool(event.getPlayer(), event.getItem())).runToolCommand();
-
 				}
 
 			}
